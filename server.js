@@ -51,6 +51,31 @@ app.get('/albums', (req, res) => {
     });
 });
 
+app.get('/albums/:id', (req, res) => {
+  models.Album.findOne({
+        where: {
+            AlbumId: req.params.id
+        }
+    }).then((album) => {
+        res.send(album);
+    });
+});
+
+app.get('/albums/:id/artist', (req, res) => {
+    models.Album.findOne({
+        where: {
+            AlbumId: req.params.id
+        },
+        include: {
+            model: models.Artist,
+            attributes: {exclude: [
+                'ArtistId'
+            ]}
+        }
+    }).then((artist) => {
+        res.send(artist);
+    });
+});
 
 app.get('/invoices', (req, res) => {
   models.Invoice.findAll({
@@ -64,6 +89,68 @@ app.get('/invoices', (req, res) => {
       }
     }).then((invoices) => {
         res.send(invoices)
+    });
+});
+
+app.get('/invoices/:id', (req, res) => {
+  models.Invoice.findOne({
+        where: {
+            InvoiceId: req.params.id
+        }
+    }).then((invoice) => {
+        res.send(invoice);
+    });
+});
+
+app.get('/invoices/:id/customer', (req, res) => {
+  models.Invoice.findOne({
+      where: {
+        InvoiceId: req.params.id
+      }
+    })
+    .then(invoice => invoice.getCustomer())
+    .then(customer => res.send(customer));
+});
+app.get('/employees', (req, res) => {
+    models.Employee.findAll().then((employees) => {
+        res.send(employees);
+    });
+});
+
+app.get('/employees/:id', (req, res) => {
+    models.Employee.findOne({
+        where: {
+            EmployeeId: req.params.id
+        },
+        include: {
+            model: models.Employee,
+            as: 'Boss',
+            attributes: [
+                'FirstName',
+                'LastName'
+            ]
+        }
+    }).then((employee) => {
+
+        res.send(employee);
+    });
+});
+
+app.get('/employees/:id/customers', (req, res) => {
+    models.Employee.findOne({
+        where: {
+            EmployeeId: req.params.id
+        },
+        include: {
+            model: models.Customer,
+            as: 'Customers',
+            attributes: [
+                'FirstName',
+                'LastName'
+            ]
+        }
+    }).then((employee) =>{
+        res.send(employee);
     });
 });
 
@@ -87,6 +174,7 @@ app.get('/customers/:id/invoices', (req, res) => {
         res.send(invoices);
     });
 });
+
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
