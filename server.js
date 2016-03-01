@@ -52,6 +52,42 @@ app.get('/albums', (req, res) => {
 });
 
 
+app.get('/invoices', (req, res) => {
+  models.Invoice.findAll({
+      attributes: { exclude: 'CustomerId' },
+      include: {
+        model: models.Customer,
+        attributes: { exclude: [
+          'CustomerId',
+          'SupportRepId'
+        ]}
+      }
+    }).then((invoices) => {
+        res.send(invoices)
+    });
+});
+
+app.get('/customers/:id', (req, res) => {
+    models.Customer.findOne({
+        where: {
+            CustomerId: req.params.id
+        }
+    }).then((customer) => {
+        res.send(customer);
+    });
+});
+
+app.get('/customers/:id/invoices', (req, res) => {
+    models.Customer.findOne({
+        where: {
+            CustomerId: req.params.id
+        },
+        include: models.Invoice
+    }).then((invoices) => {
+        res.send(invoices);
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
 });
